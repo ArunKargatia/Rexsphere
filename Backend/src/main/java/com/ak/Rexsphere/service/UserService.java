@@ -10,5 +10,6 @@ public interface UserService {
     List<User> getAllUsers();
     User updateUser(Long id, User updatedUser);
     void deleteUser(Long id);
+    String verify(User user);
 
 }

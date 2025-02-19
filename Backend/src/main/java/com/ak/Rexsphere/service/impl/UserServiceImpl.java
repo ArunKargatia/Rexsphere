@@ -1,9 +1,14 @@
 package com.ak.Rexsphere.service.impl;
 
+import com.ak.Rexsphere.config.JWTService;
 import com.ak.Rexsphere.entity.User;
 import com.ak.Rexsphere.repository.UserRepository;
 import com.ak.Rexsphere.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +20,18 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
     @Override
     public User createUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -40,7 +55,7 @@ public class UserServiceImpl implements UserService {
             if (updatedUser.getLastName() != null) existingUser.setLastName(updatedUser.getLastName());
             if (updatedUser.getUserName() != null) existingUser.setUserName(updatedUser.getUserName());
             if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
-            if (updatedUser.getPassword() != null) existingUser.setPassword(updatedUser.getPassword());
+            if (updatedUser.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             if (updatedUser.getMobileNumber() != null) existingUser.setMobileNumber(updatedUser.getMobileNumber());
             if (updatedUser.getAddress() != null) existingUser.setAddress(updatedUser.getAddress());
             if (updatedUser.getDateOfBirth() != null) existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
@@ -54,5 +69,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public String verify(User user) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword()));
+        if (authentication.isAuthenticated()) {
+
+            User userFromDB = userRepository.findByUserName(user.getUserName());
+
+            if (userFromDB != null) {
+                Long userId = userFromDB.getId();
+                return jwtService.generateToken(user.getUserName(), userId);
+            } else {
+                return "Customer not found.";
+            }
+        }
+        return "Authentication Failed.";
     }
 }
