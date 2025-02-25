@@ -2,9 +2,12 @@ package com.ak.Rexsphere.service.impl;
 
 import com.ak.Rexsphere.entity.Ask;
 import com.ak.Rexsphere.entity.Rec;
+import com.ak.Rexsphere.entity.RecVote;
 import com.ak.Rexsphere.entity.User;
+import com.ak.Rexsphere.enums.VoteType;
 import com.ak.Rexsphere.repository.AskRepository;
 import com.ak.Rexsphere.repository.RecRepository;
+import com.ak.Rexsphere.repository.RecVoteRepository;
 import com.ak.Rexsphere.repository.UserRepository;
 import com.ak.Rexsphere.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,9 @@ public class RecServiceImpl implements RecService {
 
     @Autowired
     private AskRepository askRepository;
+
+    @Autowired
+    private RecVoteRepository recVoteRepository;
 
     @Override
     public Rec createRec(Rec rec, Long askId) {
@@ -75,5 +81,46 @@ public class RecServiceImpl implements RecService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Rec not found");
         }
         recRepository.deleteById(id);
+    }
+
+    @Override
+    public void voteRec(Long recId, boolean isUpvote) {
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found."));
+
+        Rec rec = recRepository.findById(recId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rec not found."));
+
+        RecVote existingVote = recVoteRepository.findByRecAndUser(rec, user);
+
+        if (existingVote != null) {
+            // If the user clicks the same vote type, remove it
+            if ((isUpvote && existingVote.getVoteType() == VoteType.UPVOTE) ||
+                    (!isUpvote && existingVote.getVoteType() == VoteType.DOWNVOTE)) {
+                recVoteRepository.delete(existingVote);
+                return;
+            }
+            // Otherwise, update the vote type
+            existingVote.setVoteType(isUpvote ? VoteType.UPVOTE : VoteType.DOWNVOTE);
+            recVoteRepository.save(existingVote);
+        } else {
+            // Create a new vote
+            RecVote newVote = new RecVote();
+            newVote.setRec(rec);
+            newVote.setUser(user);
+            newVote.setVoteType(isUpvote ? VoteType.UPVOTE : VoteType.DOWNVOTE);
+            recVoteRepository.save(newVote);
+        }
+    }
+
+    @Override
+    public long getUpVotes(Long recId) {
+        return recVoteRepository.countByRecIdAndVoteType(recId, VoteType.UPVOTE);
+    }
+
+    @Override
+    public long getDownVotes(Long recId) {
+        return recVoteRepository.countByRecIdAndVoteType(recId, VoteType.DOWNVOTE);
     }
 }

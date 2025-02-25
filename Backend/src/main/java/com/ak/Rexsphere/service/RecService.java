@@ -12,4 +12,7 @@ public interface RecService {
     List<Rec> getStandaloneRecs();
     List<Rec> getRecsByCategory(String category);
     void deleteRec(Long id);
+    void voteRec(Long recId, boolean isUpvote);
+    long getUpVotes(Long recId);
+    long getDownVotes(Long recId);
 }

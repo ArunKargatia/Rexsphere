@@ -52,4 +52,10 @@ public class RecController {
         recService.deleteRec(id);
         return ResponseEntity.ok("Rec deleted successfully");
     }
+
+    @PostMapping("{recId}/vote")
+    public ResponseEntity<String> voteRec(@PathVariable Long recId, @RequestParam boolean isUpvote) {
+        recService.voteRec(recId, isUpvote);
+        return ResponseEntity.ok(isUpvote ? "Upvoted successfully" : "Downvoted successfully");
+    }
 }

@@ -1,9 +1,13 @@
 package com.ak.Rexsphere.entity;
 
+import com.ak.Rexsphere.enums.VoteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,14 +30,24 @@ public class Rec {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "upvotes")
-    private int upVotes = 0;
-
-    @Column(name = "downvotes")
-    private int downVotes = 0;
-
     @ManyToOne
     @JoinColumn(name = "ask_id")
     @JsonIgnore
     private Ask ask;
+
+    @OneToMany(mappedBy = "rec", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<RecVote> votes = new ArrayList<>();
+
+    public long getUpVotes() {
+        return votes != null ? votes.stream()
+                .filter(vote -> vote.getVoteType() == VoteType.UPVOTE)
+                .count() : 0;
+    }
+
+    public long getDownVotes() {
+        return votes != null ? votes.stream()
+                .filter(vote -> vote.getVoteType() == VoteType.DOWNVOTE)
+                .count() : 0;
+    }
 }
