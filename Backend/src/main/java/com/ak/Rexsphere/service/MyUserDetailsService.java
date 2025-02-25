@@ -1,4 +1,4 @@
-package com.ak.Rexsphere.config;
+package com.ak.Rexsphere.service;
 
 import com.ak.Rexsphere.entity.User;
 import com.ak.Rexsphere.repository.UserRepository;

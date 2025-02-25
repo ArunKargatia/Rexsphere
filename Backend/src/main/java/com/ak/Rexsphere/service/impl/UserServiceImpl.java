@@ -1,6 +1,6 @@
 package com.ak.Rexsphere.service.impl;
 
-import com.ak.Rexsphere.config.JWTService;
+import com.ak.Rexsphere.service.JWTService;
 import com.ak.Rexsphere.entity.User;
 import com.ak.Rexsphere.repository.UserRepository;
 import com.ak.Rexsphere.service.UserService;
@@ -91,5 +91,14 @@ public class UserServiceImpl implements UserService {
             }
         }
         return "Authentication Failed.";
+    }
+
+    @Override
+    public void updateProfilePictureUrl(Long id, String newImageUrl) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user != null) {
+            user.setProfilePictureUrl(newImageUrl);
+            userRepository.save(user);
+        }
     }
 }

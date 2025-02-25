@@ -1,4 +1,4 @@
-package com.ak.Rexsphere.config;
+package com.ak.Rexsphere.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

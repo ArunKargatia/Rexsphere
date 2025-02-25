@@ -34,8 +34,8 @@ public class User {
     @Column(name = "mobile_number", length = 15, nullable = false)
     private String mobileNumber;
 
-    @Column(name = "profile_picture")
-    private String profilePicture;
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
