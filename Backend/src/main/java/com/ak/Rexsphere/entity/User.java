@@ -1,10 +1,14 @@
 package com.ak.Rexsphere.entity;
 
+import com.ak.Rexsphere.enums.Category;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @Entity
@@ -42,6 +46,21 @@ public class User {
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "preferred_categories", nullable = false)
+    private String preferredCategories;
+
+    public void setPreferredCategories(List<Category> categories){
+        this.preferredCategories = categories.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+    }
+
+    public List<Category> getPreferredCategories(){
+        return Stream.of(preferredCategories.split(","))
+                .map(Category::valueOf)
+                .collect(Collectors.toList());
+    }
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

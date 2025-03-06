@@ -1,11 +1,13 @@
 package com.ak.Rexsphere.entity;
 
+import com.ak.Rexsphere.enums.Category;
 import com.ak.Rexsphere.enums.VoteType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +26,9 @@ public class Rec {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "category", nullable = false)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
@@ -38,6 +41,9 @@ public class Rec {
     @OneToMany(mappedBy = "rec", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<RecVote> votes = new ArrayList<>();
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public long getUpVotes() {
         return votes != null ? votes.stream()

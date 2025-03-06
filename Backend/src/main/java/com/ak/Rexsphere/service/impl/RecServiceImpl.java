@@ -1,14 +1,12 @@
 package com.ak.Rexsphere.service.impl;
 
-import com.ak.Rexsphere.entity.Ask;
-import com.ak.Rexsphere.entity.Rec;
-import com.ak.Rexsphere.entity.RecVote;
-import com.ak.Rexsphere.entity.User;
+import com.ak.Rexsphere.entity.*;
 import com.ak.Rexsphere.enums.VoteType;
 import com.ak.Rexsphere.repository.AskRepository;
 import com.ak.Rexsphere.repository.RecRepository;
 import com.ak.Rexsphere.repository.RecVoteRepository;
 import com.ak.Rexsphere.repository.UserRepository;
+import com.ak.Rexsphere.service.FeedService;
 import com.ak.Rexsphere.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +31,9 @@ public class RecServiceImpl implements RecService {
     @Autowired
     private RecVoteRepository recVoteRepository;
 
+    @Autowired
+    private FeedService feedService;
+
     @Override
     public Rec createRec(Rec rec, Long askId) {
         Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
@@ -46,7 +47,12 @@ public class RecServiceImpl implements RecService {
             rec.setAsk(ask);
         }
 
-        return recRepository.save(rec);
+        Rec savedRec = recRepository.save(rec);
+
+        // save to feed
+        feedService.savetoFeed(new Feed(rec));
+
+        return savedRec;
     }
 
     @Override

@@ -65,6 +65,10 @@ public class UserServiceImpl implements UserService {
             if (updatedUser.getAddress() != null) existingUser.setAddress(updatedUser.getAddress());
             if (updatedUser.getDateOfBirth() != null) existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
 
+            if (updatedUser.getPreferredCategories() != null && updatedUser.getPreferredCategories().isEmpty()) {
+                existingUser.setPreferredCategories(updatedUser.getPreferredCategories());
+            }
+
             return userRepository.save(existingUser);
         } else {
             return null;
@@ -82,6 +86,8 @@ public class UserServiceImpl implements UserService {
         if (authentication.isAuthenticated()) {
 
             User userFromDB = userRepository.findByUserName(user.getUserName());
+
+            System.out.println("User from DB: " + userFromDB);
 
             if (userFromDB != null) {
                 Long userId = userFromDB.getId();
