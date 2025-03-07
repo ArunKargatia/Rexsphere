@@ -23,7 +23,7 @@ public class User {
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -35,7 +35,7 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "mobile_number", length = 15, nullable = false)
+    @Column(name = "mobile_number", length = 15)
     private String mobileNumber;
 
     @Column(name = "profile_picture_url")

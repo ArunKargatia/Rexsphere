@@ -1,28 +1,39 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignIn from "./components/Signin";
+import SignIn from "./pages/SignIn";
 import { AuthProvider } from "./AuthContext";
-import SignUp from "./components/SignUp";
-import Home from "./pages/Home";
-import CreatePost from "./pages/CreatePost";
-import PostDetail from "./pages/PostDetail";
-import CreateRec from "./components/CreateRec";
-
+import SignUp from "./pages/SignUp";
+import Feed from "./pages/Feed";
+import Navbar from "./components/Navbar";
+import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/create-post" element={<CreatePost />} />
-          <Route path="/post" element={<PostDetail />} />
-          <Route path="/create-rec" element={<CreateRec />} />
-        </Routes>
+        <div className="bg-[var(--color-background)] min-h-screen">
+          <Routes>
+            <Route
+              path="/*"
+              element={  
+                <>
+                  <Navbar />
+                  <Routes>
+                    {/* <Route path="/" element={<Home />} /> */}
+                    <Route path="/feed" element={<Feed />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/edit-profile" element={<EditProfile />} />
+                  </Routes>
+                </>
+              }
+            />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+          </Routes>
+        </div>
       </Router>
     </AuthProvider>
-  )
+  );
 }
 
 export default App

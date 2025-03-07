@@ -1,5 +1,6 @@
 package com.ak.Rexsphere.service.impl;
 
+import com.ak.Rexsphere.enums.Category;
 import com.ak.Rexsphere.service.JWTService;
 import com.ak.Rexsphere.entity.User;
 import com.ak.Rexsphere.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,8 +89,6 @@ public class UserServiceImpl implements UserService {
 
             User userFromDB = userRepository.findByUserName(user.getUserName());
 
-            System.out.println("User from DB: " + userFromDB);
-
             if (userFromDB != null) {
                 Long userId = userFromDB.getId();
                 return jwtService.generateToken(user.getUserName(), userId);
@@ -106,5 +106,12 @@ public class UserServiceImpl implements UserService {
             user.setProfilePictureUrl(newImageUrl);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public List<Category> getPreferredCategories(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getPreferredCategories)
+                .orElse(Collections.emptyList());
     }
 }

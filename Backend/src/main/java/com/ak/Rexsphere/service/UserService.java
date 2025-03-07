@@ -1,6 +1,7 @@
 package com.ak.Rexsphere.service;
 
 import com.ak.Rexsphere.entity.User;
+import com.ak.Rexsphere.enums.Category;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface UserService {
     void deleteUser(Long id);
     String verify(User user);
     void updateProfilePictureUrl(Long id, String newImageUrl);
+    List<Category> getPreferredCategories(Long userId);
 }

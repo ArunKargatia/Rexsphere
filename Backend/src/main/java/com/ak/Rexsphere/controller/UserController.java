@@ -1,6 +1,7 @@
 package com.ak.Rexsphere.controller;
 
 import com.ak.Rexsphere.entity.User;
+import com.ak.Rexsphere.enums.Category;
 import com.ak.Rexsphere.service.CloudinaryService;
 import com.ak.Rexsphere.service.UserService;
 import com.cloudinary.Cloudinary;
@@ -28,15 +29,22 @@ public class UserController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers(){
         List<User> all = userService.getAllUsers();
         return ResponseEntity.ok(all);
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id){
-        User user = userService.getUserById(id);
+//    @GetMapping("/id/{id}")
+//    public ResponseEntity<User> getUserById(@PathVariable Long id){
+//        User user = userService.getUserById(id);
+//        return new ResponseEntity<>(user, HttpStatus.OK);
+//    }
+
+    @GetMapping
+    public ResponseEntity<User> getUserById(){
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        User user = userService.getUserById(userId);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -46,9 +54,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        User user = userService.updateUser(id, updatedUser);
+    @PutMapping
+    public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        User user = userService.updateUser(userId, updatedUser);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
@@ -75,5 +84,12 @@ public class UserController {
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Image upload failed: " + e.getMessage());
         }
+    }
+
+    @GetMapping("preferences")
+    public ResponseEntity<List<Category>> getUserPreferences(){
+        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        List<Category> preferredCategories = userService.getPreferredCategories(userId);
+        return ResponseEntity.ok(preferredCategories);
     }
 }

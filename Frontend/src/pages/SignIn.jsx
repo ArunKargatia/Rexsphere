@@ -25,6 +25,7 @@ const SignIn = () => {
                 password
             });
             const token = response.data;
+            console.log(token);
 
             if (token) {
                 login(token);
