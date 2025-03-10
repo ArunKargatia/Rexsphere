@@ -6,6 +6,7 @@ import Feed from "./pages/Feed";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
                 <>
                   <Navbar />
                   <Routes>
-                    {/* <Route path="/" element={<Home />} /> */}
+                    <Route path="/" element={<Home />} />
                     <Route path="/feed" element={<Feed />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
@@ -27,6 +28,7 @@ function App() {
                 </>
               }
             />
+            {/* <Route path="/" element={<Home />} /> */}
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
           </Routes>

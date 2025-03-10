@@ -3,6 +3,13 @@ import { useAuth } from "../AuthContext";
 import backendUrl from "../BackendUrlConfig";
 import { useNavigate } from "react-router-dom";
 
+const categories = [
+  "TECHNOLOGY", "SPORTS", "MUSIC", "EDUCATION", "HEALTH",
+  "TRAVEL", "GAMING", "FOOD", "BUSINESS", "MOVIES",
+  "FITNESS", "ART", "SCIENCE", "BOOKS", "AUTOMOBILE",
+  "ENTERTAINMENT", "PROGRAMMING", "LIFESTYLE", "OTHER"
+];
+
 const EditProfile = () => {
   const { token } = useAuth();
   const [userData, setUserData] = useState({
@@ -16,21 +23,11 @@ const EditProfile = () => {
     preferredCategories: [],
   });
 
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await backendUrl.get("/user/preferences");
-        setCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
     const fetchUserData = async () => {
       try {
         const response = await backendUrl.get(`/user`, {
@@ -53,7 +50,6 @@ const EditProfile = () => {
       }
     };
 
-    fetchCategories();
     fetchUserData();
   }, [token]);
 
@@ -107,20 +103,13 @@ const EditProfile = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            { label: "First Name", name: "firstName", type: "text" },
-            { label: "Last Name", name: "lastName", type: "text" },
-            { label: "Username", name: "userName", type: "text" },
-            { label: "Email", name: "email", type: "email" },
-            { label: "Mobile Number", name: "mobileNumber", type: "text" },
-            { label: "Date of Birth", name: "dateOfBirth", type: "date" },
-          ].map((field, index) => (
+          {[ "firstName", "lastName", "userName", "email", "mobileNumber", "dateOfBirth"].map((field, index) => (
             <div key={index}>
-              <label className="block text-[var(--color-text-secondary)] mb-1">{field.label}</label>
+              <label className="block text-[var(--color-text-secondary)] mb-1">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
               <input
-                type={field.type}
-                name={field.name}
-                value={userData[field.name]}
+                type={field === "dateOfBirth" ? "date" : "text"}
+                name={field}
+                value={userData[field] || ""}
                 onChange={handleChange}
                 className="w-full p-2 rounded-lg border bg-transparent text-[var(--color-text-primary)] border-gray-300 focus:border-[var(--color-primary)] focus:outline-none"
               />
@@ -133,25 +122,28 @@ const EditProfile = () => {
           <input
             type="text"
             name="address"
-            value={userData.address}
+            value={userData.address || ""}
             onChange={handleChange}
             className="w-full p-2 rounded-lg border bg-transparent text-[var(--color-text-primary)] border-gray-300 focus:border-[var(--color-primary)] focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-[var(--color-text-secondary)] mb-2">Preferred Categories</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <label className="block text-[var(--color-text-secondary)] mb-3">Select Categories</label>
+          <div className="grid grid-cols-3 gap-3">
             {categories.map((category) => (
-              <label key={category} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={userData.preferredCategories.includes(category)}
-                  onChange={() => handleCategoryChange(category)}
-                  className="w-4 h-4"
-                />
-                <span>{category}</span>
-              </label>
+              <button
+                key={category}
+                type="button"
+                onClick={() => handleCategoryChange(category)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${
+                  userData.preferredCategories.includes(category)
+                    ? "bg-[var(--color-primary)] text-white"
+                    : "bg-transparent text-[var(--color-text-secondary)] hover:bg-gray-800/30"
+                }`}
+              >
+                {category}
+              </button>
             ))}
           </div>
         </div>
