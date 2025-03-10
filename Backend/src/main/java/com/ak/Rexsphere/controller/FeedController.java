@@ -14,11 +14,6 @@ public class FeedController {
     @Autowired
     private FeedService feedService;
 
-    @PostMapping
-    public Feed addToFeed(@RequestBody Feed feed){
-        return feedService.savetoFeed(feed);
-    }
-
     @GetMapping
     public List<Feed> getAllFeed(){
         return feedService.getAllFeed();

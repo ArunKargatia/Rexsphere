@@ -36,11 +36,18 @@ public class Feed {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "reference_id", nullable = false)
+    private Long referenceId;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     public Feed(Ask ask) {
         this.content = ask.getQuestion();
         this.category = ask.getCategory();
         this.type = FeedType.ASK;
         this.user = ask.getUser();
+        this.referenceId = ask.getId();
     }
 
     public Feed(Rec rec) {
@@ -48,13 +55,12 @@ public class Feed {
         this.category = rec.getCategory();
         this.type = FeedType.REC;
         this.user = rec.getUser();
+        this.referenceId = rec.getId();
     }
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Override
     public String toString() {
-        return "Feed{id=" + id + ", content='" + content + "', category=" + category + ", type=" + type + ", user=" + user.getId() + "}";
+        return "Feed{id=" + id + ", content='" + content + "', category=" + category +
+                ", type=" + type + ", referenceId=" + referenceId + ", user=" + user.getId() + "}";
     }
 }

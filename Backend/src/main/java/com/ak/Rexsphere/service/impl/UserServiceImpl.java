@@ -67,9 +67,7 @@ public class UserServiceImpl implements UserService {
             if (updatedUser.getAddress() != null) existingUser.setAddress(updatedUser.getAddress());
             if (updatedUser.getDateOfBirth() != null) existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
 
-            if (updatedUser.getPreferredCategories() != null && updatedUser.getPreferredCategories().isEmpty()) {
-                existingUser.setPreferredCategories(updatedUser.getPreferredCategories());
-            }
+            if (updatedUser.getPreferredCategories() != null) existingUser.setPreferredCategories(updatedUser.getPreferredCategories());
 
             return userRepository.save(existingUser);
         } else {

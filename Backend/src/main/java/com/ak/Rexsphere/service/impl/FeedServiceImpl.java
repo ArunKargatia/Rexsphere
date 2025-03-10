@@ -5,6 +5,7 @@ import com.ak.Rexsphere.enums.Category;
 import com.ak.Rexsphere.repository.FeedRepository;
 import com.ak.Rexsphere.service.FeedService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +23,15 @@ public class FeedServiceImpl implements FeedService {
 
     @Override
     public List<Feed> getAllFeed() {
-        return feedRepository.findAll();
+        return feedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     @Override
     public List<Feed> getFeedByCategory(String category) {
-        return feedRepository.findByCategory(Category.valueOf(category.toUpperCase()));
+        try {
+            return feedRepository.findByCategory(Category.valueOf(category.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid category: " + category);
+        }
     }
 }
