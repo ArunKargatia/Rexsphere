@@ -10,3 +10,11 @@
   --color-upvote: #7DD181;
   --color-downvote: #7193FF;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

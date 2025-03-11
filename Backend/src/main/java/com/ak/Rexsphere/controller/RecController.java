@@ -1,5 +1,6 @@
 package com.ak.Rexsphere.controller;
 
+import com.ak.Rexsphere.dto.RecDTO;
 import com.ak.Rexsphere.entity.Rec;
 import com.ak.Rexsphere.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,12 @@ public class RecController {
     @GetMapping("/all")
     public ResponseEntity<List<Rec>> getAllRecs(){
         return new ResponseEntity<>(recService.getAllRecs(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{recId}/votes")
+    public ResponseEntity<RecDTO> getRecWithVotes(@PathVariable Long recId) {
+        RecDTO recDTO = recService.getRecWithVotes(recId);
+        return new ResponseEntity<>(recDTO, HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")

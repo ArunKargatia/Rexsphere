@@ -1,5 +1,6 @@
 package com.ak.Rexsphere.service.impl;
 
+import com.ak.Rexsphere.dto.RecDTO;
 import com.ak.Rexsphere.entity.*;
 import com.ak.Rexsphere.enums.VoteType;
 import com.ak.Rexsphere.repository.AskRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecServiceImpl implements RecService {
@@ -58,6 +60,24 @@ public class RecServiceImpl implements RecService {
     @Override
     public List<Rec> getAllRecs() {
         return recRepository.findAll();
+    }
+
+    @Override
+    public RecDTO getRecWithVotes(Long recId) {
+        Rec rec = recRepository.findById(recId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rec not found"));
+
+        long upVotes = recVoteRepository.countByRecIdAndVoteType(recId, VoteType.UPVOTE);
+        long downVotes = recVoteRepository.countByRecIdAndVoteType(recId, VoteType.DOWNVOTE);
+
+        return new RecDTO(
+                rec.getId(),
+                rec.getContent(),
+                rec.getCategory(),
+                rec.getUser().getUserName(),
+                upVotes,
+                downVotes
+        );
     }
 
     @Override
