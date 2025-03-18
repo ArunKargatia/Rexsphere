@@ -1,11 +1,14 @@
 package com.ak.Rexsphere.entity;
 
 import com.ak.Rexsphere.enums.Category;
+import com.ak.Rexsphere.enums.VoteType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -30,9 +33,15 @@ public class Ask {
     @Column(name = "question", columnDefinition = "TEXT")
     private String question;
 
-    @OneToMany(mappedBy = "ask",  cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rec> recs;
+    @OneToMany
+    @JoinColumn(name = "ask_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<Comment> comments;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @OneToMany(mappedBy = "ask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Vote> votes = new ArrayList<>();
+
 }

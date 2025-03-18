@@ -33,27 +33,14 @@ public class Rec {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "ask_id")
-    @JsonIgnore
-    private Ask ask;
-
     @OneToMany(mappedBy = "rec", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<RecVote> votes = new ArrayList<>();
+    private List<Vote> votes = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "ask_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<Comment> comments;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    public long getUpVotes() {
-        return votes != null ? votes.stream()
-                .filter(vote -> vote.getVoteType() == VoteType.UPVOTE)
-                .count() : 0;
-    }
-
-    public long getDownVotes() {
-        return votes != null ? votes.stream()
-                .filter(vote -> vote.getVoteType() == VoteType.DOWNVOTE)
-                .count() : 0;
-    }
 }

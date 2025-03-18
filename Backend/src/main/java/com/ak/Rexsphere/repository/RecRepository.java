@@ -9,10 +9,6 @@ import java.util.List;
 @Repository
 public interface RecRepository extends JpaRepository<Rec, Long> {
 
-    List<Rec> findByAskId(Long askId);
-
-    List<Rec> findByAskIsNull();
-
     List<Rec> findByCategory(String category);
 
 }

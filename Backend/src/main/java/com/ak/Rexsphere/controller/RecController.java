@@ -1,6 +1,5 @@
 package com.ak.Rexsphere.controller;
 
-import com.ak.Rexsphere.dto.RecDTO;
 import com.ak.Rexsphere.entity.Rec;
 import com.ak.Rexsphere.service.RecService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,8 @@ public class RecController {
     private RecService recService;
 
     @PostMapping
-    public ResponseEntity<Rec> createRec(@RequestBody Rec rec, @RequestParam(required = false) Long askId) {
-        Rec savedRec = recService.createRec(rec, askId);
+    public ResponseEntity<Rec> createRec(@RequestBody Rec rec) {
+        Rec savedRec = recService.createRec(rec);
         return new ResponseEntity<>(savedRec, HttpStatus.CREATED);
     }
 
@@ -29,9 +28,9 @@ public class RecController {
     }
 
     @GetMapping("/{recId}/votes")
-    public ResponseEntity<RecDTO> getRecWithVotes(@PathVariable Long recId) {
-        RecDTO recDTO = recService.getRecWithVotes(recId);
-        return new ResponseEntity<>(recDTO, HttpStatus.OK);
+    public ResponseEntity<Rec> getRecWithVotes(@PathVariable Long recId) {
+        Rec rec = recService.getRecWithVotes(recId);
+        return new ResponseEntity<>(rec, HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
@@ -39,30 +38,14 @@ public class RecController {
         return new ResponseEntity<>(recService.getRecById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/askid/{askid}")
-    public ResponseEntity<List<Rec>> getRecsByAskId(@PathVariable Long askId) {
-        return new ResponseEntity<>(recService.getRecsByAskId(askId), HttpStatus.OK);
-    }
-
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Rec>> getRecByCategory(@PathVariable String category){
         return new ResponseEntity<>(recService.getRecsByCategory(category), HttpStatus.OK);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Rec>> getStandaloneRecs(){
-        return new ResponseEntity<>(recService.getStandaloneRecs(), HttpStatus.OK);
     }
 
     @DeleteMapping("/id/{id}")
     public ResponseEntity<?> deleteRec(@PathVariable Long id){
         recService.deleteRec(id);
         return ResponseEntity.ok("Rec deleted successfully");
-    }
-
-    @PostMapping("{recId}/vote")
-    public ResponseEntity<String> voteRec(@PathVariable Long recId, @RequestParam boolean isUpvote) {
-        recService.voteRec(recId, isUpvote);
-        return ResponseEntity.ok(isUpvote ? "Upvoted successfully" : "Downvoted successfully");
     }
 }
