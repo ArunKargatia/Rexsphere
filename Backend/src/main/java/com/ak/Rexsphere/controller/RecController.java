@@ -27,12 +27,6 @@ public class RecController {
         return new ResponseEntity<>(recService.getAllRecs(), HttpStatus.OK);
     }
 
-    @GetMapping("/{recId}/votes")
-    public ResponseEntity<Rec> getRecWithVotes(@PathVariable Long recId) {
-        Rec rec = recService.getRecWithVotes(recId);
-        return new ResponseEntity<>(rec, HttpStatus.OK);
-    }
-
     @GetMapping("/id/{id}")
     public ResponseEntity<Rec> getRecById(@PathVariable Long id) {
         return new ResponseEntity<>(recService.getRecById(id), HttpStatus.OK);

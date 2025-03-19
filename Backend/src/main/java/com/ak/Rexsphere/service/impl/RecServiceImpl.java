@@ -54,14 +54,6 @@ public class RecServiceImpl implements RecService {
     }
 
     @Override
-    public Rec getRecWithVotes(Long recId) {
-        Rec rec = recRepository.findById(recId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rec not found"));
-
-        return rec;
-    }
-
-    @Override
     public Rec getRecById(Long id) {
         return recRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rec not found"));

@@ -33,10 +33,6 @@ public class Ask {
     @Column(name = "question", columnDefinition = "TEXT")
     private String question;
 
-    @OneToMany
-    @JoinColumn(name = "ask_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private List<Comment> comments;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

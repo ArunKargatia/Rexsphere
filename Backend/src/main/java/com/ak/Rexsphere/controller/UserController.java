@@ -35,12 +35,6 @@ public class UserController {
         return ResponseEntity.ok(all);
     }
 
-//    @GetMapping("/id/{id}")
-//    public ResponseEntity<User> getUserById(@PathVariable Long id){
-//        User user = userService.getUserById(id);
-//        return new ResponseEntity<>(user, HttpStatus.OK);
-//    }
-
     @GetMapping
     public ResponseEntity<User> getUserById(){
         Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();

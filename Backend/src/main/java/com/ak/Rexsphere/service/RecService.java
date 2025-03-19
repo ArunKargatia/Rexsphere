@@ -7,7 +7,6 @@ import java.util.List;
 public interface RecService {
     Rec createRec(Rec rec);
     List<Rec> getAllRecs();
-    Rec getRecWithVotes(Long recId);
     Rec getRecById(Long id);
     List<Rec> getRecsByCategory(String category);
     void deleteRec(Long id);
