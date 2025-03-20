@@ -34,31 +34,26 @@ const Feed = () => {
 
         setFeedItems(response.data);
 
-        // Store all comments at once with deduplication
+        // Store all comments at once without deduplication
         const commentsMap = {};
         response.data.forEach((item) => {
           if (item.comments) {
-            // Apply deduplication for each post's comments
-            const uniqueComments = {};
-            item.comments.forEach(comment => {
-              uniqueComments[comment.id] = comment;
-            });
-            commentsMap[item.referenceId] = Object.values(uniqueComments);
+            commentsMap[item.referenceId] = item.comments;
           }
         });
 
         setComments((prev) => ({ ...prev, ...commentsMap }));
 
         // Batch comment count fetch operations
-        const countPromises = response.data.map(item => 
+        const countPromises = response.data.map(item =>
           backendUrl.get(`/comment/${item.type.toLowerCase()}/${item.referenceId}/count`, {
             headers: { Authorization: `Bearer ${token}` },
           })
-          .then(res => ({ referenceId: item.referenceId, count: res.data.count }))
-          .catch(error => {
-            console.error(`Error fetching comment count for ${item.referenceId}:`, error);
-            return { referenceId: item.referenceId, count: 0 };
-          })
+            .then(res => ({ referenceId: item.referenceId, count: res.data.count }))
+            .catch(error => {
+              console.error(`Error fetching comment count for ${item.referenceId}:`, error);
+              return { referenceId: item.referenceId, count: 0 };
+            })
         );
 
         // Process all count results at once to reduce state updates
@@ -67,7 +62,7 @@ const Feed = () => {
         counts.forEach(({ referenceId, count }) => {
           countsMap[referenceId] = count;
         });
-        
+
         setCommentCounts(prev => ({ ...prev, ...countsMap }));
       } catch (error) {
         console.error("Error fetching feed:", error);
@@ -87,14 +82,9 @@ const Feed = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const uniqueComments = {};
-      res.data.forEach(comment => {
-        uniqueComments[comment.id] = comment;
-      });
-
       setComments((prev) => ({
         ...prev,
-        [referenceId]: Object.values(uniqueComments),
+        [referenceId]: res.data,
       }));
     } catch (error) {
       console.error(`Error fetching comments for ${referenceId}:`, error);
@@ -132,10 +122,6 @@ const Feed = () => {
       setComments((prev) => {
         // Create a new array with all existing comments plus the new one
         const existingComments = prev[referenceId] || [];
-        // Make sure we don't add a duplicate
-        const isDuplicate = existingComments.some(c => c.id === res.data.id);
-        if (isDuplicate) return prev;
-        
         return {
           ...prev,
           [referenceId]: [...existingComments, res.data],
@@ -198,16 +184,16 @@ const Feed = () => {
       <h1 className="text-3xl font-bold text-center mb-6">Feed</h1>
 
       <div className="flex justify-between items-center mb-4">
-        <button 
-          onClick={() => scrollRef.current.scrollBy({ left: -200, behavior: "smooth" })} 
+        <button
+          onClick={() => scrollRef.current.scrollBy({ left: -200, behavior: "smooth" })}
           className="p-2 bg-gray-800/70 text-white rounded-full"
           aria-label="Scroll categories left"
         >
           <ChevronLeft size={24} />
         </button>
 
-        <div 
-          ref={scrollRef} 
+        <div
+          ref={scrollRef}
           className="flex gap-4 overflow-x-auto px-2 scrollbar-hide scroll-smooth"
           role="tablist"
           aria-label="Content categories"
@@ -215,9 +201,8 @@ const Feed = () => {
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`px-4 py-2 rounded-lg shadow-md transition-all whitespace-nowrap ${
-                category === cat ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-card)] hover:bg-opacity-80"
-              }`}
+              className={`px-4 py-2 rounded-lg shadow-md transition-all whitespace-nowrap ${category === cat ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-card)] hover:bg-opacity-80"
+                }`}
               onClick={() => setCategory(cat)}
               role="tab"
               aria-selected={category === cat}
@@ -228,8 +213,8 @@ const Feed = () => {
           ))}
         </div>
 
-        <button 
-          onClick={() => scrollRef.current.scrollBy({ left: 200, behavior: "smooth" })} 
+        <button
+          onClick={() => scrollRef.current.scrollBy({ left: 200, behavior: "smooth" })}
           className="p-2 bg-gray-800/70 text-white rounded-full"
           aria-label="Scroll categories right"
         >
@@ -246,8 +231,8 @@ const Feed = () => {
           {feedItems
             .filter((item) => category === "ALL" || item.category.toUpperCase() === category)
             .map((item) => (
-              <div 
-                key={item.referenceId} 
+              <div
+                key={item.id}
                 className="bg-[var(--color-card)] p-6 rounded-xl shadow-lg border border-gray-700/30"
                 role="article"
               >
@@ -270,8 +255,8 @@ const Feed = () => {
                   Posted on: {formatDate(item.createdAt)}
                 </p>
 
-                <div 
-                  className="flex items-center gap-3 mt-4 cursor-pointer" 
+                <div
+                  className="flex items-center gap-3 mt-4 cursor-pointer"
                   onClick={() => toggleComments(item.referenceId, item.type)}
                   role="button"
                   aria-expanded={expandedComments[item.referenceId]}
@@ -282,14 +267,14 @@ const Feed = () => {
                 </div>
 
                 {expandedComments[item.referenceId] && (
-                  <div 
+                  <div
                     id={`comments-${item.referenceId}`}
                     className="mt-4 p-4 rounded-2xl bg-[var(--color-background-secondary)] shadow-xl transition-all duration-300"
                   >
                     {comments[item.referenceId]?.length > 0 ? (
                       comments[item.referenceId]?.map((comment, index) => (
-                        <div 
-                          key={`${item.referenceId}-${comment.id}-${index}`} 
+                        <div
+                          key={`${item.referenceId}-${comment.id}-${index}`}
                           className="p-2 mb-2 bg-[var(--color-background)] rounded-lg"
                         >
                           <p>{comment.content}</p>
