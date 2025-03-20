@@ -35,10 +35,12 @@ const Feed = () => {
         setFeedItems(response.data);
 
         // Store all comments at once without deduplication
+        // Use a composite key of type+referenceId to avoid conflicting comments
         const commentsMap = {};
         response.data.forEach((item) => {
           if (item.comments) {
-            commentsMap[item.referenceId] = item.comments;
+            const compositeKey = `${item.type}-${item.referenceId}`;
+            commentsMap[compositeKey] = item.comments;
           }
         });
 
@@ -49,18 +51,24 @@ const Feed = () => {
           backendUrl.get(`/comment/${item.type.toLowerCase()}/${item.referenceId}/count`, {
             headers: { Authorization: `Bearer ${token}` },
           })
-            .then(res => ({ referenceId: item.referenceId, count: res.data.count }))
+            .then(res => ({ 
+              compositeKey: `${item.type}-${item.referenceId}`, 
+              count: res.data.count 
+            }))
             .catch(error => {
               console.error(`Error fetching comment count for ${item.referenceId}:`, error);
-              return { referenceId: item.referenceId, count: 0 };
+              return { 
+                compositeKey: `${item.type}-${item.referenceId}`, 
+                count: 0 
+              };
             })
         );
 
         // Process all count results at once to reduce state updates
         const counts = await Promise.all(countPromises);
         const countsMap = {};
-        counts.forEach(({ referenceId, count }) => {
-          countsMap[referenceId] = count;
+        counts.forEach(({ compositeKey, count }) => {
+          countsMap[compositeKey] = count;
         });
 
         setCommentCounts(prev => ({ ...prev, ...countsMap }));
@@ -82,9 +90,10 @@ const Feed = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const compositeKey = `${type}-${referenceId}`;
       setComments((prev) => ({
         ...prev,
-        [referenceId]: res.data,
+        [compositeKey]: res.data,
       }));
     } catch (error) {
       console.error(`Error fetching comments for ${referenceId}:`, error);
@@ -92,25 +101,27 @@ const Feed = () => {
   };
 
   const toggleComments = (referenceId, type) => {
+    const compositeKey = `${type}-${referenceId}`;
     setExpandedComments((prev) => ({
       ...prev,
-      [referenceId]: !prev[referenceId],
+      [compositeKey]: !prev[compositeKey],
     }));
 
     // Only fetch comments if they're not already available
-    if (!expandedComments[referenceId] && !comments[referenceId]) {
+    if (!expandedComments[compositeKey] && !comments[compositeKey]) {
       fetchComments(referenceId, type);
     }
   };
 
   const handleAddComment = async (referenceId, type) => {
-    if (!newComment[referenceId]?.trim()) return;
+    const compositeKey = `${type}-${referenceId}`;
+    if (!newComment[compositeKey]?.trim()) return;
 
     try {
       const payload =
         type.toLowerCase() === "ask"
-          ? { content: newComment[referenceId], askId: referenceId }
-          : { content: newComment[referenceId], recId: referenceId };
+          ? { content: newComment[compositeKey], askId: referenceId }
+          : { content: newComment[compositeKey], recId: referenceId };
 
       const res = await backendUrl.post(
         "/comment",
@@ -121,19 +132,19 @@ const Feed = () => {
       // Add the new comment to the list
       setComments((prev) => {
         // Create a new array with all existing comments plus the new one
-        const existingComments = prev[referenceId] || [];
+        const existingComments = prev[compositeKey] || [];
         return {
           ...prev,
-          [referenceId]: [...existingComments, res.data],
+          [compositeKey]: [...existingComments, res.data],
         };
       });
 
-      setNewComment((prev) => ({ ...prev, [referenceId]: "" }));
+      setNewComment((prev) => ({ ...prev, [compositeKey]: "" }));
 
       // Update comment count dynamically
       setCommentCounts((prev) => ({
         ...prev,
-        [referenceId]: (prev[referenceId] || 0) + 1,
+        [compositeKey]: (prev[compositeKey] || 0) + 1,
       }));
 
     } catch (error) {
@@ -141,8 +152,9 @@ const Feed = () => {
     }
   };
 
-  const handleEditComment = (referenceId, commentId, content) => {
-    setEditingComment({ referenceId, commentId, content });
+  const handleEditComment = (referenceId, commentId, content, type) => {
+    const compositeKey = `${type}-${referenceId}`;
+    setEditingComment({ referenceId, commentId, content, compositeKey });
   };
 
   const handleUpdateComment = async () => {
@@ -161,10 +173,10 @@ const Feed = () => {
 
       // Update the comment in the state
       setComments((prev) => {
-        const updatedComments = prev[editingComment.referenceId].map((comment) =>
+        const updatedComments = prev[editingComment.compositeKey].map((comment) =>
           comment.id === editingComment.commentId ? res.data : comment
         );
-        return { ...prev, [editingComment.referenceId]: updatedComments };
+        return { ...prev, [editingComment.compositeKey]: updatedComments };
       });
 
       setEditingComment(null); // Clear the editing state
@@ -230,106 +242,109 @@ const Feed = () => {
         <div className="space-y-6">
           {feedItems
             .filter((item) => category === "ALL" || item.category.toUpperCase() === category)
-            .map((item) => (
-              <div
-                key={item.id}
-                className="bg-[var(--color-card)] p-6 rounded-xl shadow-lg border border-gray-700/30"
-                role="article"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <p className="text-sm text-[var(--color-text-secondary)] font-semibold">{item.category}</p>
-                  <p className="text-sm text-[var(--color-text-secondary)] font-semibold">
-                    {item.type === "REC" ? "REC" : "ASK"}
-                  </p>
-                </div>
-
-                <h2 className="text-lg font-semibold mb-2">{item.content}</h2>
-
-                {/* Enhanced Username Display */}
-                <p className="text-sm text-[var(--color-text-secondary)]">
-                  By: <span className="hover:underline cursor-pointer">@{item.user.userName}</span>
-                </p>
-
-                {/* Added Date */}
-                <p className="text-xs text-[var(--color-text-secondary)]">
-                  Posted on: {formatDate(item.createdAt)}
-                </p>
-
+            .map((item) => {
+              const compositeKey = `${item.type}-${item.referenceId}`;
+              return (
                 <div
-                  className="flex items-center gap-3 mt-4 cursor-pointer"
-                  onClick={() => toggleComments(item.referenceId, item.type)}
-                  role="button"
-                  aria-expanded={expandedComments[item.referenceId]}
-                  aria-controls={`comments-${item.referenceId}`}
+                  key={item.id}
+                  className="bg-[var(--color-card)] p-6 rounded-xl shadow-lg border border-gray-700/30"
+                  role="article"
                 >
-                  <MessageSquare size={20} className="text-[var(--color-primary)]" />
-                  <span className="text-sm">{commentCounts[item.referenceId] || 0} Comments</span>
-                </div>
+                  <div className="flex justify-between items-center mb-4">
+                    <p className="text-sm text-[var(--color-text-secondary)] font-semibold">{item.category}</p>
+                    <p className="text-sm text-[var(--color-text-secondary)] font-semibold">
+                      {item.type === "REC" ? "REC" : "ASK"}
+                    </p>
+                  </div>
 
-                {expandedComments[item.referenceId] && (
+                  <h2 className="text-lg font-semibold mb-2">{item.content}</h2>
+
+                  {/* Enhanced Username Display */}
+                  <p className="text-sm text-[var(--color-text-secondary)]">
+                    By: <span className="hover:underline cursor-pointer">@{item.user.userName}</span>
+                  </p>
+
+                  {/* Added Date */}
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Posted on: {formatDate(item.createdAt)}
+                  </p>
+
                   <div
-                    id={`comments-${item.referenceId}`}
-                    className="mt-4 p-4 rounded-2xl bg-[var(--color-background-secondary)] shadow-xl transition-all duration-300"
+                    className="flex items-center gap-3 mt-4 cursor-pointer"
+                    onClick={() => toggleComments(item.referenceId, item.type)}
+                    role="button"
+                    aria-expanded={expandedComments[compositeKey]}
+                    aria-controls={`comments-${compositeKey}`}
                   >
-                    {comments[item.referenceId]?.length > 0 ? (
-                      comments[item.referenceId]?.map((comment, index) => (
-                        <div
-                          key={`${item.referenceId}-${comment.id}-${index}`}
-                          className="p-2 mb-2 bg-[var(--color-background)] rounded-lg"
-                        >
-                          <p>{comment.content}</p>
-                          <span className="text-xs text-[var(--color-text-secondary)]">- {comment.user.userName}</span>
-                          <button
-                            onClick={() => handleEditComment(item.referenceId, comment.id, comment.content)}
-                            className="text-blue-500 text-xs ml-2"
-                            aria-label="Edit comment"
+                    <MessageSquare size={20} className="text-[var(--color-primary)]" />
+                    <span className="text-sm">{commentCounts[compositeKey] || 0} Comments</span>
+                  </div>
+
+                  {expandedComments[compositeKey] && (
+                    <div
+                      id={`comments-${compositeKey}`}
+                      className="mt-4 p-4 rounded-2xl bg-[var(--color-background-secondary)] shadow-xl transition-all duration-300"
+                    >
+                      {comments[compositeKey]?.length > 0 ? (
+                        comments[compositeKey]?.map((comment, index) => (
+                          <div
+                            key={`${compositeKey}-${comment.id}-${index}`}
+                            className="p-2 mb-2 bg-[var(--color-background)] rounded-lg"
                           >
-                            Edit
+                            <p>{comment.content}</p>
+                            <span className="text-xs text-[var(--color-text-secondary)]">- {comment.user.userName}</span>
+                            <button
+                              onClick={() => handleEditComment(item.referenceId, comment.id, comment.content, item.type)}
+                              className="text-blue-500 text-xs ml-2"
+                              aria-label="Edit comment"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p>No comments yet.</p>
+                      )}
+
+                      {editingComment && editingComment.compositeKey === compositeKey && (
+                        <div className="mt-4 flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={editingComment.content}
+                            onChange={(e) => setEditingComment((prev) => ({ ...prev, content: e.target.value }))}
+                            className="flex-1 p-2 rounded-full bg-[var(--color-background)]"
+                            aria-label="Edit comment text"
+                          />
+                          <button
+                            onClick={handleUpdateComment}
+                            className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-full"
+                          >
+                            Update
                           </button>
                         </div>
-                      ))
-                    ) : (
-                      <p>No comments yet.</p>
-                    )}
+                      )}
 
-                    {editingComment && editingComment.referenceId === item.referenceId && (
                       <div className="mt-4 flex items-center gap-2">
                         <input
                           type="text"
-                          value={editingComment.content}
-                          onChange={(e) => setEditingComment((prev) => ({ ...prev, content: e.target.value }))}
+                          value={newComment[compositeKey] || ""}
+                          onChange={(e) => setNewComment((prev) => ({ ...prev, [compositeKey]: e.target.value }))}
+                          placeholder="Add a comment..."
                           className="flex-1 p-2 rounded-full bg-[var(--color-background)]"
-                          aria-label="Edit comment text"
+                          aria-label="New comment text"
                         />
                         <button
-                          onClick={handleUpdateComment}
+                          onClick={() => handleAddComment(item.referenceId, item.type)}
                           className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-full"
                         >
-                          Update
+                          Comment
                         </button>
                       </div>
-                    )}
-
-                    <div className="mt-4 flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newComment[item.referenceId] || ""}
-                        onChange={(e) => setNewComment((prev) => ({ ...prev, [item.referenceId]: e.target.value }))}
-                        placeholder="Add a comment..."
-                        className="flex-1 p-2 rounded-full bg-[var(--color-background)]"
-                        aria-label="New comment text"
-                      />
-                      <button
-                        onClick={() => handleAddComment(item.referenceId, item.type)}
-                        className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-full"
-                      >
-                        Comment
-                      </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              );
+            })}
         </div>
       )}
     </div>
