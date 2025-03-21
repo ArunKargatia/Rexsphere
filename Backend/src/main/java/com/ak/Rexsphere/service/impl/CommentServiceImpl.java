@@ -48,7 +48,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> getCommentsForRec(Long recId) {
-        return commentRepository.findByAskId(recId);
+        return commentRepository.findByRecId(recId);
     }
 
     @Override
