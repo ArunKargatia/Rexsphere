@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -53,6 +54,19 @@ public class UserController {
         Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         User user = userService.updateUser(userId, updatedUser);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> requestBody){
+        String currentPassword = requestBody.get("currentPassword");
+        String updatedPassword = requestBody.get("updatedPassword");
+
+        if (currentPassword == null || updatedPassword == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Both currentPassword and updatedPassword are required.");
+        }
+
+        userService.updatePassword(currentPassword, updatedPassword);
+        return ResponseEntity.ok("Password updated successfully.");
     }
 
     @DeleteMapping("/{id}")

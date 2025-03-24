@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import './index.css'
 import SignIn from "./pages/SignIn";
 import { AuthProvider } from "./AuthContext";
 import SignUp from "./pages/SignUp";
@@ -7,6 +8,8 @@ import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import Home from "./pages/Home";
+import PostPage from "./pages/PostPage";
+import UpdatePassword from "./pages/UpdatePassword";
 
 function App() {
   return (
@@ -24,6 +27,8 @@ function App() {
                     <Route path="/feed" element={<Feed />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/post" element={<PostPage />} />
+                    <Route path="/update-password" element={<UpdatePassword />} />
                   </Routes>
                 </>
               }

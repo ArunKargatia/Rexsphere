@@ -12,14 +12,14 @@ const Home = () => {
     <div className="h-screen bg-[var(--color-background)] text-[var(--color-text-primary)] flex flex-col justify-center items-center px-6">
       {/* Hero Section */}
       <div className="text-center max-w-4xl">
-      <h1 className="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
-        <span>Ask.</span>
-        <span className="mx-2">Share.</span>
-        <span>Recommend.</span>
+        <h1 className="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
+          <span>Ask.</span>
+          <span className="mx-2">Share.</span>
+          <span>Recommend.</span>
         </h1>
 
         <p className="mt-5 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-          Discover trending topics, share insights, and explore what others love. 
+          Discover trending topics, share insights, and explore what others love.
           Join a growing community shaping the best recommendations.
         </p>
         <Link

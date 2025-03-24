@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -62,7 +61,7 @@ public class UserServiceImpl implements UserService {
             if (updatedUser.getLastName() != null) existingUser.setLastName(updatedUser.getLastName());
             if (updatedUser.getUserName() != null) existingUser.setUserName(updatedUser.getUserName());
             if (updatedUser.getEmail() != null) existingUser.setEmail(updatedUser.getEmail());
-            if (updatedUser.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+//            if (updatedUser.getPassword() != null) existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             if (updatedUser.getMobileNumber() != null) existingUser.setMobileNumber(updatedUser.getMobileNumber());
             if (updatedUser.getAddress() != null) existingUser.setAddress(updatedUser.getAddress());
             if (updatedUser.getDateOfBirth() != null) existingUser.setDateOfBirth(updatedUser.getDateOfBirth());
@@ -74,6 +73,29 @@ public class UserServiceImpl implements UserService {
             return null;
         }
     }
+
+    @Override
+    public void updatePassword(String currentPassword, String updatedPassword) {
+        Long id = (Long) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User existingUser = user.get();
+
+            if (passwordEncoder.matches(currentPassword, existingUser.getPassword())) {
+                if (updatedPassword != null && !updatedPassword.isBlank()){
+                    existingUser.setPassword(passwordEncoder.encode(updatedPassword));
+                    userRepository.save(existingUser);
+                }
+            }
+            else {
+                throw new IllegalArgumentException("Current password is incorrect.");
+            }
+        }
+        else {
+            throw new NoSuchElementException("User not Found");
+        }
+    }
+
 
     @Override
     public void deleteUser(Long id) {

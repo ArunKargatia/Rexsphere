@@ -21,7 +21,7 @@ const SignIn = () => {
 
         try {
             const response = await backendUrl.post('/public/login', {
-                userName, 
+                userName,
                 password
             });
             const token = response.data;
@@ -31,7 +31,7 @@ const SignIn = () => {
                 login(token);
                 setSuccessMessage("You have successfully signed in! Redirecting...");
                 setTimeout(() => {
-                  navigate("/");
+                    navigate("/");
                 }, 1000);
             }
         } catch (err) {
@@ -48,19 +48,19 @@ const SignIn = () => {
                     <h2 className="text-3xl font-bold text-[var(--color-text-primary)] mb-2">Welcome Back</h2>
                     <p className="text-[var(--color-text-secondary)] text-sm">Sign in to your account</p>
                 </div>
-                
+
                 {error && (
                     <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                         <p className="text-red-500 text-center text-sm">{error}</p>
                     </div>
                 )}
-                
+
                 {successMessage && (
                     <div className="mb-6 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                         <p className="text-green-500 text-center text-sm">{successMessage}</p>
                     </div>
                 )}
-                
+
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label htmlFor="username" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1.5">
@@ -78,7 +78,7 @@ const SignIn = () => {
                             />
                         </div>
                     </div>
-                    
+
                     <div>
                         <div className="flex justify-between items-center mb-1.5">
                             <label htmlFor="password" className="block text-sm font-medium text-[var(--color-text-secondary)]">
@@ -100,7 +100,7 @@ const SignIn = () => {
                             />
                         </div>
                     </div>
-                    
+
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -119,7 +119,7 @@ const SignIn = () => {
                         )}
                     </button>
                 </form>
-                
+
                 <div className="mt-8 text-center">
                     <p className="text-sm text-[var(--color-text-secondary)]">
                         Don't have an account?{' '}

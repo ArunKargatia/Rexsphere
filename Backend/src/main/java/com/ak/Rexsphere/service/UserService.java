@@ -11,6 +11,7 @@ public interface UserService {
     User getUserByUserName(String userName);
     List<User> getAllUsers();
     User updateUser(Long id, User updatedUser);
+    void updatePassword(String currentPassword, String updatedPassword);
     void deleteUser(Long id);
     String verify(User user);
     void updateProfilePictureUrl(Long id, String newImageUrl);

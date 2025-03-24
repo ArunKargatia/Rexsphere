@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import backendUrl from "../BackendUrlConfig";
 import { useAuth } from "../AuthContext";
-import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquare, Plus } from "lucide-react";
 
 const categories = [
   "ALL", "TECHNOLOGY", "SPORTS", "MUSIC", "EDUCATION", "HEALTH",
@@ -13,6 +14,7 @@ const categories = [
 const Feed = () => {
   const { token, getUserIdFromToken } = useAuth();
   const loggedInUserId = getUserIdFromToken();
+  const navigate = useNavigate();
   const [feedItems, setFeedItems] = useState([]);
   const [category, setCategory] = useState("ALL");
   const [commentData, setCommentData] = useState({});
@@ -294,21 +296,21 @@ const Feed = () => {
   };
 
   const handleDelete = async (commentId, referenceId, type) => {
-  if (!type) {
-    console.error("Error: 'type' is undefined in handleDelete");
-    return; 
-  }
+    if (!type) {
+      console.error("Error: 'type' is undefined in handleDelete");
+      return;
+    }
 
-  try {
-    await backendUrl.delete(`/comment/${commentId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  
-    fetchComments(referenceId, type); 
-  } catch (error) {
-    console.error("Error deleting comment:", error);
-  }
-};
+    try {
+      await backendUrl.delete(`/comment/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      fetchComments(referenceId, type);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
 
 
   return (
@@ -472,6 +474,13 @@ const Feed = () => {
             })}
         </div>
       )}
+      {/* Floating Add Post Button */}
+      <button
+        onClick={() => navigate("/post")}
+        className="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white p-4 rounded-full shadow-lg hover:scale-105 transition-all"
+      >
+        <Plus size={24} />
+      </button>
     </div>
   );
 };

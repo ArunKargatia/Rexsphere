@@ -54,13 +54,15 @@ const Profile = () => {
         <p className="text-[var(--color-text-secondary)] text-lg">@{user.userName || "Not Provided"}</p>
 
         <div className="mt-8 space-y-3 w-full">
-        <button
+          <button
             onClick={() => navigate("/edit-profile")}
             className="w-full px-5 py-2 text-lg font-semibold bg-[var(--color-primary)] text-white rounded-lg shadow-md hover:bg-opacity-90 transition-transform transform hover:scale-105"
-        >
-        Edit Profile
-        </button>
-          <button className="w-full px-5 py-2 text-lg font-semibold bg-red-500 text-white rounded-lg shadow-md hover:bg-opacity-90 transition-transform transform hover:scale-105">
+          >
+            Edit Profile
+          </button>
+          <button
+            onClick={() => navigate("/update-password")}
+            className="w-full px-5 py-2 text-lg font-semibold bg-red-500 text-white rounded-lg shadow-md hover:bg-opacity-90 transition-transform transform hover:scale-105">
             Change Password
           </button>
         </div>

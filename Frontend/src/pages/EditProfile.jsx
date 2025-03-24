@@ -103,7 +103,7 @@ const EditProfile = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[ "firstName", "lastName", "userName", "email", "mobileNumber", "dateOfBirth"].map((field, index) => (
+          {["firstName", "lastName", "userName", "email", "mobileNumber", "dateOfBirth"].map((field, index) => (
             <div key={index}>
               <label className="block text-[var(--color-text-secondary)] mb-1">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
               <input
@@ -136,11 +136,10 @@ const EditProfile = () => {
                 key={category}
                 type="button"
                 onClick={() => handleCategoryChange(category)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${
-                  userData.preferredCategories.includes(category)
-                    ? "bg-[var(--color-primary)] text-white"
-                    : "bg-transparent text-[var(--color-text-secondary)] hover:bg-gray-800/30"
-                }`}
+                className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${userData.preferredCategories.includes(category)
+                  ? "bg-[var(--color-primary)] text-white"
+                  : "bg-transparent text-[var(--color-text-secondary)] hover:bg-gray-800/30"
+                  }`}
               >
                 {category}
               </button>

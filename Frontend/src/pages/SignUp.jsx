@@ -3,11 +3,11 @@ import backendUrl from "../BackendUrlConfig";
 import { useNavigate, Link } from "react-router-dom";
 
 const categories = [
-    "Technology", "Sports", "Music", "Education", "Health",
-    "Travel", "Gaming", "Food", "Business", "Movies",
-    "Fitness", "Art", "Science", "Books", "Automobile",
-    "Entertainment", "Programming", "Lifestyle", "Other"
-];  
+  "Technology", "Sports", "Music", "Education", "Health",
+  "Travel", "Gaming", "Food", "Business", "Movies",
+  "Fitness", "Art", "Science", "Books", "Automobile",
+  "Entertainment", "Programming", "Lifestyle", "Other"
+];
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -90,11 +90,10 @@ const SignUp = () => {
                   key={category}
                   type="button"
                   onClick={() => handleCategoryChange(category)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${
-                    formData.preferredCategories.includes(category)
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${formData.preferredCategories.includes(category)
                       ? "bg-[var(--color-primary)] text-white"
                       : "bg-transparent text-[var(--color-text-secondary)] hover:bg-gray-800/30"
-                  }`}
+                    }`}
                 >
                   {category}
                 </button>
