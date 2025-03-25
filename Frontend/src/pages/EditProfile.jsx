@@ -2,6 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import backendUrl from "../BackendUrlConfig";
 import { useNavigate } from "react-router-dom";
+import {
+  Save,
+  X,
+  UserPlus,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Star,
+  User as UserIcon,
+  ImagePlus
+} from "lucide-react";
 
 const categories = [
   "TECHNOLOGY", "SPORTS", "MUSIC", "EDUCATION", "HEALTH",
@@ -21,9 +33,11 @@ const EditProfile = () => {
     dateOfBirth: "",
     address: "",
     preferredCategories: [],
+    profilePictureUrl: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [message, setMessage] = useState(null);
   const navigate = useNavigate();
 
@@ -44,9 +58,14 @@ const EditProfile = () => {
           dateOfBirth: user.dateOfBirth || "",
           address: user.address || "",
           preferredCategories: user.preferredCategories || [],
+          profilePictureUrl: user.profilePictureUrl || "",
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
+        setMessage({
+          type: "error",
+          text: "Failed to fetch user data. Please try again."
+        });
       }
     };
 
@@ -55,6 +74,23 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePictureFile(file);
+
+      // Create a preview of the selected image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserData(prev => ({
+          ...prev,
+          profilePictureUrl: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleCategoryChange = (category) => {
@@ -75,6 +111,30 @@ const EditProfile = () => {
     setMessage(null);
 
     try {
+      // First, upload profile picture if a new file is selected
+      if (profilePictureFile) {
+        const formData = new FormData();
+        formData.append('file', profilePictureFile);
+
+        const uploadResponse = await backendUrl.post(
+          `/user/upload-profile-picture`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            },
+          }
+        );
+
+        // Update profilePictureUrl in userData with the new URL
+        setUserData(prev => ({
+          ...prev,
+          profilePictureUrl: uploadResponse.data
+        }));
+      }
+
+      // Then update user profile
       await backendUrl.put(
         `/user`,
         { ...userData },
@@ -92,70 +152,208 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-12 p-8 bg-[var(--color-card)] rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold text-[var(--color-text-primary)] mb-6">Edit Profile</h2>
+    <div className="min-h-screen bg-gradient-to-br from-[var(--color-background)] to-[var(--color-background-light)] 
+      pt-24 md:pt-32 px-4 py-12">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Profile Sidebar */}
+        <div className="bg-[var(--color-card)] p-8 rounded-3xl shadow-2xl 
+          border border-gray-700/20 relative overflow-hidden">
+          {/* Subtle Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 
+            to-[var(--color-primary)]/5 opacity-50 pointer-events-none"></div>
 
-      {message && (
-        <p className={`mb-4 p-2 rounded-lg text-center ${message.type === "success" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
-          {message.text}
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {["firstName", "lastName", "userName", "email", "mobileNumber", "dateOfBirth"].map((field, index) => (
-            <div key={index}>
-              <label className="block text-[var(--color-text-secondary)] mb-1">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
+          <div className="relative z-10">
+            <div className="w-48 h-48 mx-auto rounded-full overflow-hidden 
+              border-4 border-[var(--color-primary)] shadow-2xl 
+              transform transition-transform duration-300 hover:scale-105 relative">
               <input
-                type={field === "dateOfBirth" ? "date" : "text"}
-                name={field}
-                value={userData[field] || ""}
-                onChange={handleChange}
-                className="w-full p-2 rounded-lg border bg-transparent text-[var(--color-text-primary)] border-gray-300 focus:border-[var(--color-primary)] focus:outline-none"
+                type="file"
+                id="profilePicture"
+                accept="image/*"
+                onChange={handleProfilePictureChange}
+                className="absolute inset-0 opacity-0 cursor-pointer z-20"
+              />
+              <div className="absolute inset-0 z-10 flex items-center justify-center 
+                bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <ImagePlus className="w-10 h-10 text-white" />
+              </div>
+              <img
+                src={userData.profilePictureUrl || "https://cdn-icons-png.flaticon.com/512/64/64572.png"}
+                alt="Profile"
+                className="w-full h-full object-cover"
               />
             </div>
-          ))}
-        </div>
 
-        <div>
-          <label className="block text-[var(--color-text-secondary)] mb-1">Address</label>
-          <input
-            type="text"
-            name="address"
-            value={userData.address || ""}
-            onChange={handleChange}
-            className="w-full p-2 rounded-lg border bg-transparent text-[var(--color-text-primary)] border-gray-300 focus:border-[var(--color-primary)] focus:outline-none"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[var(--color-text-secondary)] mb-3">Select Categories</label>
-          <div className="grid grid-cols-3 gap-3">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => handleCategoryChange(category)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg border border-gray-600 transition-all duration-200 ${userData.preferredCategories.includes(category)
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "bg-transparent text-[var(--color-text-secondary)] hover:bg-gray-800/30"
-                  }`}
-              >
-                {category}
-              </button>
-            ))}
+            <div className="text-center mt-6">
+              <h2 className="text-3xl font-bold
+                bg-clip-text text-transparent bg-gradient-to-r 
+                from-[var(--color-text-primary)] to-[var(--color-primary)]">
+                Edit Profile
+              </h2>
+              <p className="text-sm text-[var(--color-text-secondary)] mt-2">
+                Click on the profile picture to upload a new image
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4 mt-6">
-          <button type="button" onClick={() => navigate("/profile")} className="px-6 py-2 rounded-lg text-lg bg-gray-500 text-white shadow-md hover:bg-gray-600">
-            Cancel
-          </button>
-          <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg text-lg bg-[var(--color-primary)] text-white shadow-md hover:bg-opacity-90">
-            {loading ? "Updating..." : "Save Changes"}
-          </button>
+        {/* Edit Profile Section */}
+        <div className="md:col-span-2 space-y-8">
+          {message && (
+            <div className={`p-4 rounded-2xl text-center shadow-lg ${message.type === "success"
+                ? "bg-green-500/20 text-green-600"
+                : "bg-red-500/20 text-red-600"
+              }`}>
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                {
+                  name: "firstName",
+                  label: "First Name",
+                  icon: UserIcon
+                },
+                {
+                  name: "lastName",
+                  label: "Last Name",
+                  icon: UserIcon
+                },
+                {
+                  name: "userName",
+                  label: "Username",
+                  icon: UserPlus
+                },
+                {
+                  name: "email",
+                  label: "Email",
+                  icon: Mail
+                },
+                {
+                  name: "mobileNumber",
+                  label: "Mobile Number",
+                  icon: Phone
+                },
+                {
+                  name: "dateOfBirth",
+                  label: "Date of Birth",
+                  icon: Calendar,
+                  type: "date"
+                },
+              ].map((field) => (
+                <div
+                  key={field.name}
+                  className="p-6 bg-[var(--color-card)] rounded-2xl 
+                    shadow-lg border border-gray-700/20 
+                    transform transition-transform hover:scale-105 
+                    hover:shadow-xl duration-300 group"
+                >
+                  <div className="flex items-center space-x-4 mb-3">
+                    <field.icon
+                      className="w-6 h-6 text-[var(--color-primary)] 
+                        group-hover:rotate-12 transition-transform"
+                    />
+                    <p className="text-[var(--color-text-secondary)]">{field.label}</p>
+                  </div>
+                  <input
+                    type={field.type || "text"}
+                    name={field.name}
+                    value={userData[field.name] || ""}
+                    onChange={handleChange}
+                    className="w-full bg-transparent text-[var(--color-text-primary)] 
+                      text-lg font-semibold border-b border-gray-300 
+                      focus:border-[var(--color-primary)] focus:outline-none 
+                      transition-colors duration-300"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="p-6 bg-[var(--color-card)] rounded-2xl 
+                shadow-lg border border-gray-700/20 
+                transform transition-transform hover:scale-105 
+                hover:shadow-xl duration-300 group"
+            >
+              <div className="flex items-center space-x-4 mb-3">
+                <MapPin
+                  className="w-6 h-6 text-[var(--color-primary)] 
+                    group-hover:rotate-12 transition-transform"
+                />
+                <p className="text-[var(--color-text-secondary)]">Address</p>
+              </div>
+              <input
+                type="text"
+                name="address"
+                value={userData.address || ""}
+                onChange={handleChange}
+                className="w-full bg-transparent text-[var(--color-text-primary)] 
+                  text-lg font-semibold border-b border-gray-300 
+                  focus:border-[var(--color-primary)] focus:outline-none 
+                  transition-colors duration-300"
+              />
+            </div>
+
+            <div
+              className="p-6 bg-[var(--color-card)] rounded-2xl 
+                shadow-lg border border-gray-700/20 
+                transform transition-transform hover:scale-105 
+                hover:shadow-xl duration-300 group"
+            >
+              <div className="flex items-center space-x-4 mb-3">
+                <Star
+                  className="w-6 h-6 text-[var(--color-primary)] 
+                    group-hover:rotate-12 transition-transform"
+                />
+                <p className="text-[var(--color-text-secondary)]">Select Categories</p>
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-4">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategoryChange(category)}
+                    className={`px-3 py-2 text-xs rounded-full border transition-all duration-200 ${userData.preferredCategories.includes(category)
+                        ? "bg-[var(--color-primary)] text-white border-transparent"
+                        : "bg-transparent text-[var(--color-text-secondary)] border-gray-300 hover:bg-gray-100/20"
+                      }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="flex items-center space-x-2 px-6 py-3 
+                  bg-red-500 text-white rounded-full font-semibold 
+                  shadow-lg hover:shadow-xl transform hover:-translate-y-1 
+                  transition-all duration-300 group"
+              >
+                <X className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+                <span>Cancel</span>
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center space-x-2 px-6 py-3 
+                  bg-[var(--color-primary)] text-white rounded-full 
+                  font-semibold shadow-lg hover:shadow-xl 
+                  transform hover:-translate-y-1 transition-all 
+                  duration-300 group"
+              >
+                <Save className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+                <span>{loading ? "Updating..." : "Save Changes"}</span>
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
