@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import { ArrowRight, Globe, Zap, Star, Users, TrendingUp } from "lucide-react";
+import { useAuth } from '../AuthContext'; // Make sure to import the AuthContext
 
 const categories = [
   { name: "Technology", icon: Globe },
@@ -17,6 +18,7 @@ const categories = [
 
 const Home = () => {
   const [hoveredCategory, setHoveredCategory] = useState(null);
+  const { isAuthenticated } = useAuth(); // Use the AuthContext to check authentication status
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--color-background)] to-[var(--color-background-light)] 
@@ -45,13 +47,13 @@ const Home = () => {
 
         <div className="flex justify-center space-x-4">
           <Link
-            to="/signup"
+            to={isAuthenticated ? "/feed" : "/signup"} // Conditional routing based on authentication
             className="inline-flex items-center px-8 py-4 bg-[var(--color-primary)] 
               text-white rounded-full text-lg font-semibold 
               shadow-xl hover:shadow-2xl transform hover:-translate-y-1 
               transition-all duration-300 ease-in-out group"
           >
-            Get Started
+            {isAuthenticated ? "Go to Feed" : "Get Started"}
             <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

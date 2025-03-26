@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, User, LogOut, Compass, TrendingUp, Grid, ChevronDown } from "lucide-react";
+import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "../AuthContext";
 
 const Navbar = () => {
@@ -27,55 +27,19 @@ const Navbar = () => {
     setIsDropdownOpen(false);
   };
 
-  const NavLinks = [
-    {
-      name: "Explore",
-      path: "/explore",
-      icon: Compass
-    },
-    {
-      name: "Trending",
-      path: "/trending",
-      icon: TrendingUp
-    },
-    {
-      name: "Categories",
-      path: "/categories",
-      icon: Grid
-    }
-  ];
-
   return (
     <nav className="fixed top-0 left-0 w-full bg-[var(--color-card)] border-b border-gray-700/20 
       backdrop-blur-md bg-opacity-80 z-50 shadow-lg">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="w-full px-4 lg:px-8 xl:px-16"> {/* Changed from max-w-6xl to w-full with responsive padding */}
         <div className="flex justify-between items-center py-4">
           {/* Logo with Subtle Animation */}
           <Link
             to="/"
-            className="text-2xl font-bold text-[var(--color-primary)] 
+            className="text-3xl font-bold text-[var(--color-primary)] 
               transform transition-transform duration-300 hover:scale-105"
           >
             Rexsphere
           </Link>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex space-x-6 items-center">
-            {NavLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="group flex items-center space-x-2 text-white 
-                  hover:text-[var(--color-primary)] transition-colors duration-300"
-              >
-                <link.icon
-                  className="w-5 h-5 text-gray-400 group-hover:text-[var(--color-primary)] 
-                    transition-colors duration-300"
-                />
-                <span>{link.name}</span>
-              </Link>
-            ))}
-          </div>
 
           {/* Auth & Mobile Menu */}
           <div className="flex items-center space-x-4">
@@ -166,23 +130,15 @@ const Navbar = () => {
               z-50 animate-slide-in"
           >
             <div className="flex flex-col space-y-6 py-12 px-6">
-              {NavLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className="flex items-center space-x-4 text-xl 
-                    text-white hover:text-[var(--color-primary)] 
-                    transition-colors group"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <link.icon
-                    className="w-6 h-6 text-gray-400 
-                      group-hover:text-[var(--color-primary)] 
-                      transition-colors"
-                  />
-                  <span>{link.name}</span>
-                </Link>
-              ))}
+              <Link
+                to="/"
+                className="flex items-center space-x-4 text-xl 
+                  text-white hover:text-[var(--color-primary)] 
+                  transition-colors group"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span>Feed</span>
+              </Link>
             </div>
             <button
               className="absolute top-6 right-6 text-white"

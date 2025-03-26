@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import backendUrl from "../BackendUrlConfig";
 import { useAuth } from "../AuthContext";
-import { ChevronLeft, ChevronRight, MessageSquare, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquare, Plus, Edit2, Trash2 } from "lucide-react";
 
 const categories = [
   "ALL", "TECHNOLOGY", "SPORTS", "MUSIC", "EDUCATION", "HEALTH",
@@ -113,7 +113,6 @@ const Feed = () => {
 
   // Updated function to fetch comments for an item, ensuring proper filtering
   const fetchComments = async (referenceId, type) => {
-
     if (!type) {
       console.error("Error: 'type' is undefined in fetchComments");
       return;
@@ -312,26 +311,55 @@ const Feed = () => {
     }
   };
 
-
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-[var(--color-background)] min-h-screen text-[var(--color-text-primary)]">
-      <h1 className="text-3xl font-bold text-center mb-6">Feed</h1>
-
+    <div className="
+      w-full 
+      max-w-full 
+      lg:max-w-4xl 
+      xl:max-w-5xl 
+      mx-auto 
+      px-4 
+      md:px-6 
+      lg:px-8 
+      py-8 
+      bg-[var(--color-background)] 
+      min-h-screen 
+      text-[var(--color-text-primary)] 
+      pt-20
+    ">
+      <h1 className="
+        text-3xl 
+        md:text-4xl 
+        font-extrabold 
+        text-center 
+        mb-10 
+        tracking-tight
+      ">Feed</h1>
       {/* Category navigation */}
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => scrollRef.current.scrollBy({ left: -200, behavior: "smooth" })}
-          className="p-2 bg-gray-800/70 text-white rounded-full"
-        >
-          <ChevronLeft size={24} />
-        </button>
+      <div className="relative mb-8">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-2 z-10">
+          <button
+            onClick={() => scrollRef.current.scrollBy({ left: -200, behavior: "smooth" })}
+            className="p-2 bg-gray-800/50 hover:bg-gray-800/70 text-white rounded-full transition-all"
+          >
+            <ChevronLeft size={24} />
+          </button>
+        </div>
 
-        <div ref={scrollRef} className="flex gap-4 overflow-x-auto px-2 scrollbar-hide scroll-smooth">
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto scroll-smooth scrollbar-hide px-12"
+        >
           {categories.map((cat) => (
             <button
               key={cat}
-              className={`px-4 py-2 rounded-lg shadow-md transition-all whitespace-nowrap ${category === cat ? "bg-[var(--color-primary)] text-white" : "bg-[var(--color-card)] hover:bg-opacity-80"
-                }`}
+              className={`
+                px-4 py-2 rounded-full shadow-md transition-all whitespace-nowrap 
+                text-sm font-medium 
+                ${category === cat
+                  ? "bg-[var(--color-primary)] text-white scale-105"
+                  : "bg-[var(--color-card)] text-[var(--color-text-secondary)] hover:bg-opacity-90"}
+              `}
               onClick={() => setCategory(cat)}
             >
               {cat}
@@ -339,18 +367,20 @@ const Feed = () => {
           ))}
         </div>
 
-        <button
-          onClick={() => scrollRef.current.scrollBy({ left: 200, behavior: "smooth" })}
-          className="p-2 bg-gray-800/70 text-white rounded-full"
-        >
-          <ChevronRight size={24} />
-        </button>
+        <div className="absolute inset-y-0 right-0 flex items-center pr-2 z-10">
+          <button
+            onClick={() => scrollRef.current.scrollBy({ left: 200, behavior: "smooth" })}
+            className="p-2 bg-gray-800/50 hover:bg-gray-800/70 text-white rounded-full transition-all"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
       </div>
 
       {/* Loading indicator */}
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-3 border-b-3 border-[var(--color-primary)]"></div>
         </div>
       ) : (
         <div className="space-y-6">
@@ -362,107 +392,143 @@ const Feed = () => {
               const itemCommentData = commentData[compositeKey] || { count: 0, comments: [], expanded: false };
 
               return (
-                <div key={item.id} className="bg-[var(--color-card)] p-6 rounded-xl shadow-lg border border-gray-700/30">
+                <div
+                  key={item.id}
+                  className="
+                    bg-[var(--color-card)] 
+                    p-6 
+                    rounded-2xl 
+                    shadow-lg 
+                    border 
+                    border-gray-700/30 
+                    transition-all 
+                    hover:shadow-xl 
+                    hover:-translate-y-1
+                    flex 
+                    flex-col
+                  "
+                >
                   {/* Feed item header */}
                   <div className="flex justify-between items-center mb-4">
-                    <p className="text-sm text-[var(--color-text-secondary)] font-semibold">{item.category}</p>
-                    <p className="text-sm text-[var(--color-text-secondary)] font-semibold">{item.type}</p>
+                    <span className="text-sm text-[var(--color-text-secondary)] font-semibold bg-gray-200/20 px-3 py-1 rounded-full">
+                      {item.category}
+                    </span>
+                    <span className="text-sm text-[var(--color-text-secondary)] font-medium opacity-70">
+                      {item.type}
+                    </span>
                   </div>
 
                   {/* Feed item content */}
-                  <h2 className="text-lg font-semibold mb-2">{item.content}</h2>
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    By: <span className="hover:underline cursor-pointer">@{item.user.userName}</span>
-                  </p>
-                  <p className="text-xs text-[var(--color-text-secondary)]">
-                    Posted on: {formatDate(item.createdAt)}
-                  </p>
-
-                  {/* Comments toggle button */}
-                  <div
-                    className="flex items-center gap-3 mt-4 cursor-pointer"
-                    onClick={() => toggleComments(item.referenceId, item.type)}
-                  >
-                    <MessageSquare size={20} className="text-[var(--color-primary)]" />
-                    <span className="text-sm">{itemCommentData.count || 0} Comments</span>
+                  <h2 className="text-xl font-bold mb-3 text-[var(--color-text-primary)]">{item.content}</h2>
+                  <div className="flex items-center justify-between text-sm text-[var(--color-text-secondary)] mb-4">
+                    <p>
+                      By: <span className="hover:underline cursor-pointer font-semibold">@{item.user.userName}</span>
+                    </p>
+                    <p className="text-xs opacity-70">{formatDate(item.createdAt)}</p>
                   </div>
 
-                  {/* Comments section (conditionally rendered) */}
+                  {/* Comments toggle */}
+                  <div
+                    className="flex items-center gap-3 cursor-pointer group"
+                    onClick={() => toggleComments(item.referenceId, item.type)}
+                  >
+                    <MessageSquare
+                      size={20}
+                      className="text-[var(--color-primary)] group-hover:scale-110 transition-transform"
+                    />
+                    <span className="text-sm text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors">
+                      {itemCommentData.count || 0} Comments
+                    </span>
+                  </div>
+
+                  {/* Comments section */}
                   {itemCommentData.expanded && (
-                    <div className="mt-4 p-4 rounded-2xl bg-[var(--color-background-secondary)] shadow-xl">
+                    <div className="mt-6 p-4 rounded-2xl bg-[var(--color-background-secondary)] shadow-inner">
                       {/* Comment list */}
                       {itemCommentData.comments?.length > 0 ? (
-                        itemCommentData.comments.map((comment) => (
-                          <div key={comment.id} className="p-2 mb-2 bg-[var(--color-background)] rounded-lg">
-                            {itemCommentData.editingComment?.id === comment.id ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  value={itemCommentData.editingComment.content}
-                                  onChange={(e) => updateEditingComment(compositeKey, e.target.value)}
-                                  className="flex-1 p-2 rounded-full bg-[var(--color-background)]"
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleUpdateComment(
-                                      item.referenceId,
-                                      item.type,
-                                      comment.id,
-                                      itemCommentData.editingComment.content
-                                    )
-                                  }
-                                  className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-full"
-                                >
-                                  Update
-                                </button>
-                                <button
-                                  onClick={() => setEditingComment(compositeKey, null, "")} // Reset editing mode
-                                  className="px-4 py-2 bg-gray-500 text-white rounded-full"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <p>{comment.content}</p>
-                                <span className="text-xs text-[var(--color-text-secondary)]">- {comment.user.userName}</span>
-
-                                {comment.user.id === getUserIdFromToken() && (
-                                  <div className="flex gap-2 mt-1">
+                        <div className="space-y-3">
+                          {itemCommentData.comments.map((comment) => (
+                            <div
+                              key={comment.id}
+                              className="p-3 bg-[var(--color-background)] rounded-xl flex items-start gap-3"
+                            >
+                              {itemCommentData.editingComment?.id === comment.id ? (
+                                <div className="flex-1 flex items-center gap-2">
+                                  <input
+                                    type="text"
+                                    value={itemCommentData.editingComment.content}
+                                    onChange={(e) => updateEditingComment(compositeKey, e.target.value)}
+                                    className="flex-1 p-2 rounded-full bg-[var(--color-background)] border"
+                                  />
+                                  <div className="flex gap-2">
                                     <button
-                                      onClick={() => setEditingComment(compositeKey, comment.id, comment.content)}
-                                      className="text-blue-500 text-xs"
+                                      onClick={() =>
+                                        handleUpdateComment(
+                                          item.referenceId,
+                                          item.type,
+                                          comment.id,
+                                          itemCommentData.editingComment.content
+                                        )
+                                      }
+                                      className="p-2 bg-[var(--color-primary)] text-white rounded-full hover:opacity-90"
                                     >
-                                      Edit
+                                      Update
                                     </button>
                                     <button
-                                      onClick={() => handleDelete(comment.id, item.referenceId, item.type)}
-                                      className="text-red-500 text-xs"
+                                      onClick={() => setEditingComment(compositeKey, null, "")}
+                                      className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300"
                                     >
-                                      Delete
+                                      Cancel
                                     </button>
                                   </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        ))
+                                </div>
+                              ) : (
+                                <div className="flex-1">
+                                  <p className="text-sm mb-1">{comment.content}</p>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-xs text-[var(--color-text-secondary)] opacity-70">
+                                      - {comment.user.userName}
+                                    </span>
+                                    {comment.user.id === getUserIdFromToken() && (
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => setEditingComment(compositeKey, comment.id, comment.content)}
+                                          className="text-blue-500 hover:bg-blue-50 p-1 rounded-full"
+                                        >
+                                          <Edit2 size={16} />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDelete(comment.id, item.referenceId, item.type)}
+                                          className="text-red-500 hover:bg-red-50 p-1 rounded-full"
+                                        >
+                                          <Trash2 size={16} />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       ) : (
-                        <p>No comments yet.</p>
+                        <p className="text-center text-[var(--color-text-secondary)] py-4">No comments yet.</p>
                       )}
 
                       {/* New comment form */}
-                      <div className="mt-4 flex items-center gap-2">
+                      <div className="mt-4 flex items-center gap-3">
                         <input
                           type="text"
                           value={itemCommentData.newComment || ""}
                           onChange={(e) => handleCommentInputChange(compositeKey, e.target.value)}
                           placeholder="Add a comment..."
-                          className="flex-1 p-2 rounded-full bg-[var(--color-background)]"
+                          className="flex-1 p-3 rounded-full bg-[var(--color-background)] border transition-all 
+                                     focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
                         />
                         <button
                           onClick={() => handleAddComment(item.referenceId, item.type, itemCommentData.newComment)}
-                          className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-full"
+                          className="px-5 py-3 bg-[var(--color-primary)] text-white rounded-full 
+                                     hover:opacity-90 transition-all"
                         >
                           Comment
                         </button>
@@ -474,12 +540,29 @@ const Feed = () => {
             })}
         </div>
       )}
+
       {/* Floating Add Post Button */}
       <button
         onClick={() => navigate("/post")}
-        className="fixed bottom-6 right-6 bg-[var(--color-primary)] text-white p-4 rounded-full shadow-lg hover:scale-105 transition-all"
+        className="
+          fixed 
+          bottom-8 
+          right-8 
+          bg-[var(--color-primary)] 
+          text-white 
+          p-5 
+          rounded-full 
+          shadow-2xl 
+          hover:scale-110 
+          transition-all 
+          group
+          z-50
+        "
       >
-        <Plus size={24} />
+        <Plus
+          size={28}
+          className="group-hover:rotate-90 transition-transform duration-300"
+        />
       </button>
     </div>
   );

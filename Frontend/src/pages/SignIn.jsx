@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { User, Lock } from 'lucide-react';
 import backendUrl from '../BackendUrlConfig';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -67,12 +68,15 @@ const SignIn = () => {
                             Username
                         </label>
                         <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <User className="h-5 w-5 text-[var(--color-text-secondary)]" />
+                            </div>
                             <input
                                 type="text"
                                 id="username"
                                 value={userName}
                                 onChange={(e) => setUserName(e.target.value)}
-                                className="w-full p-3 border border-gray-700/50 rounded-lg bg-[var(--color-background)]/70 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/70 focus:border-transparent transition-all duration-200"
+                                className="w-full p-3 pl-10 border border-gray-700/50 rounded-lg bg-[var(--color-background)]/70 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/70 focus:border-transparent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                 placeholder="Enter your username"
                                 required
                             />
@@ -84,17 +88,17 @@ const SignIn = () => {
                             <label htmlFor="password" className="block text-sm font-medium text-[var(--color-text-secondary)]">
                                 Password
                             </label>
-                            <a href="#" className="text-xs text-[var(--color-primary)] hover:underline">
-                                Forgot password?
-                            </a>
                         </div>
                         <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Lock className="h-5 w-5 text-[var(--color-text-secondary)]" />
+                            </div>
                             <input
                                 type="password"
                                 id="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full p-3 border border-gray-700/50 rounded-lg bg-[var(--color-background)]/70 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/70 focus:border-transparent transition-all duration-200"
+                                className="w-full p-3 pl-10 border border-gray-700/50 rounded-lg bg-[var(--color-background)]/70 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/70 focus:border-transparent transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                 placeholder="Enter your password"
                                 required
                             />
@@ -104,7 +108,7 @@ const SignIn = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-3 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[color-mix(in_srgb,var(--color-primary),purple_20%)] text-white font-medium rounded-lg hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:ring-offset-2 focus:ring-offset-[var(--color-card)] transition-all duration-200 disabled:opacity-70"
+                        className="w-full py-3 px-4 bg-gradient-to-r from-[var(--color-primary)] to-[color-mix(in_srgb,var(--color-primary),purple_20%)] text-white font-medium rounded-lg hover:shadow-lg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 focus:ring-offset-2 focus:ring-offset-[var(--color-card)] transition-all duration-200 disabled:opacity-70 hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isLoading ? (
                             <span className="inline-flex items-center">
