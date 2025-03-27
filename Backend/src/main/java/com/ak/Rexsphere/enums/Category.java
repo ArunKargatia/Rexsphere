@@ -14,6 +14,7 @@ public enum Category {
     BUSINESS,
     MOVIES,
     FITNESS,
+    HISTORY,
     ART,
     SCIENCE,
     BOOKS,
