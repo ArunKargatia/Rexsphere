@@ -32,7 +32,7 @@ const SignIn = () => {
                 login(token);
                 setSuccessMessage("You have successfully signed in! Redirecting...");
                 setTimeout(() => {
-                    navigate("/");
+                    navigate("/feed");
                 }, 1000);
             }
         } catch (err) {

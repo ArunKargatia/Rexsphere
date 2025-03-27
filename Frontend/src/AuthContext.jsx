@@ -4,60 +4,59 @@ import { jwtDecode } from "jwt-decode";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(sessionStorage.getItem("token") || null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const storedToken = sessionStorage.getItem("token");
+  const initialToken = storedToken && !isTokenExpired(storedToken) ? storedToken : null;
+
+  const [token, setToken] = useState(initialToken);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!initialToken);
 
   useEffect(() => {
-    if (token && !isTokenExpired(token)) {
-      setIsAuthenticated(true);
+    if (!token || isTokenExpired(token)) {
+      logout();
     } else {
-      setIsAuthenticated(false);
+      setIsAuthenticated(true);
     }
   }, [token]);
 
   useEffect(() => {
-    const checkTokenExpiration = () => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(() => {
       if (token && isTokenExpired(token)) {
         logout();
       }
-    };
-
-    const interval = setInterval(checkTokenExpiration, 60 * 1000);
+    }, 60 * 1000); // Check every minute
     return () => clearInterval(interval);
-  }, [token]);
+  }, [isAuthenticated, token]);
 
-  const isTokenExpired = (token) => {
+  function isTokenExpired(token) {
     try {
-      const decoded = jwtDecode(token);
-      return decoded.exp * 1000 < Date.now();
-    } catch (error) {
-      console.error("Invalid token:", error);
+      const { exp } = jwtDecode(token);
+      return exp * 1000 < Date.now();
+    } catch {
       return true;
     }
-  };
+  }
 
-  const getUserIdFromToken = () => {
-    if (!token) return null;
+  function getUserIdFromToken() {
     try {
-      const decoded = jwtDecode(token);
-      return decoded.userId || null;
-    } catch (error) {
-      console.error("Error decoding token:", error);
+      return token ? jwtDecode(token).userId || null : null;
+    } catch {
       return null;
     }
-  };
+  }
 
-  const login = (newToken) => {
+  function login(newToken) {
+    if (!newToken || isTokenExpired(newToken)) return;
     setToken(newToken);
     sessionStorage.setItem("token", newToken);
     setIsAuthenticated(true);
-  };
+  }
 
-  const logout = () => {
+  function logout() {
     setToken(null);
     sessionStorage.removeItem("token");
     setIsAuthenticated(false);
-  };
+  }
 
   return (
     <AuthContext.Provider value={{ token, isAuthenticated, login, logout, getUserIdFromToken }}>
@@ -66,6 +65,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
